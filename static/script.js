@@ -370,9 +370,9 @@
             }
 
             // Real-time posture check and feedback (Hip alignment & Knee flexion check)
-            if (hipAngle < 145) {
+            if (hipAngle < 160) {
                 currentRepIsGood = false;
-                formQualityText.textContent = "Bad: Pinggul Melengkung!";
+                formQualityText.textContent = "Bad: Pinggang dan Bahu Kurang Sejajar!";
                 formQualityText.className = "info-val highlight-red";
                 speakCorrection("Luruskan punggung");
             } else if (kneeAngle < 150) {
@@ -402,10 +402,10 @@
                     formQualityText.className = "info-val highlight-red";
                     playSound('warning');
                     speakCorrection("Turun kurang dalam");
-                } else if (!currentRepIsGood || minHipAngle < 145) {
+                } else if (!currentRepIsGood || minHipAngle < 160) {
                     repStateText.textContent = "Rep Ditolak!";
                     repStateText.className = "info-val highlight-red";
-                    formQualityText.textContent = "Gagal: Form Buruk";
+                    formQualityText.textContent = "Gagal: Pinggang & Bahu Tidak Sejajar";
                     formQualityText.className = "info-val highlight-red";
                     playSound('warning');
                     speakCorrection("Luruskan punggung");
