@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitAI Pro - Real-Time AI Exercise Tracker</title>
+    
+    <!-- Local Fonts: Outfit & Inter -->
+    <link rel="stylesheet" href="/static/vendor/fonts/outfit/index.css">
+    <link rel="stylesheet" href="/static/vendor/fonts/inter/index.css">
+    
+    <!-- Local FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
+    
+    <!-- Custom Premium Stylesheet -->
+    <link rel="stylesheet" href="/static/style.css?v=3">
+    
+    <!-- Local MediaPipe Dependencies -->
+    <script src="/static/vendor/mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="/static/vendor/mediapipe/pose/pose.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Decorative glowing backgrounds -->
+        <div class="glow-bg-1"></div>
+        <div class="glow-bg-2"></div>
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fa-solid fa-heart-pulse logo-icon"></i>
+                <h1>Fit<span>AI</span> Pro</h1>
+            </div>
+            <div class="system-status">
+                <div class="status-badge" id="backend-status">
+                    <span class="status-dot warning"></span>
+                    <span class="status-text">Connecting to Server...</span>
+                </div>
+                <div class="status-badge" id="webcam-status">
+                    <span class="status-dot red"></span>
+                    <span class="status-text">Webcam: Offline</span>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main Layout -->
+        <main class="app-main">
+            <!-- Left Panel: Webcam Feed -->
+            <section class="video-section card">
+                <div class="video-container">
+                    <!-- Standard video tag for camera feed, hidden visually but used by MediaPipe -->
+                    <video id="webcam" autoplay playsinline style="display: none;"></video>
+                    <!-- Overlay canvas where skeleton is drawn -->
+                    <canvas id="output-canvas"></canvas>
+                    
+                    <!-- Floating Camera HUD Overlay -->
+                    <div class="camera-hud" id="camera-hud" style="display: none;">
+                        <!-- Reps HUD Box (Top Left) -->
+                        <div class="hud-box hud-reps-box">
+                            <span class="hud-reps-label">REPS</span>
+                            <span class="hud-reps-val" id="hud-rep-counter">0</span>
+                            <div class="hud-reps-state" id="hud-rep-state">Idle</div>
+                        </div>
+                        
+                        <!-- Feedback HUD Box (Top Right) -->
+                        <div class="hud-box hud-feedback-box">
+                            <div class="hud-feedback-header">
+                                <i class="fa-solid fa-dumbbell"></i>
+                                <span id="hud-predicted-label">Auto AI</span>
+                            </div>
+                            <div class="hud-feedback-body">
+                                <div class="hud-feedback-text" id="hud-form-feedback">SIAP MENDETEKSI</div>
+                                <div class="hud-feedback-sub" id="hud-spine-feedback">Sisi: LEFT | Punggung: Tegak</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="calibration-overlay" id="calibration-overlay" style="display: none;">
+                        <div class="calibration-title">
+                            <i class="fa-solid fa-expand"></i> Lacak Tubuh
+                        </div>
+                        <div class="calibration-item" id="calib-shoulders">
+                            <span class="indicator"></span> Bahu (Shoulders)
+                        </div>
+                        <div class="calibration-item" id="calib-hips">
+                            <span class="indicator"></span> Pinggul (Hips)
+                        </div>
+                        <div class="calibration-item" id="calib-knees">
+                            <span class="indicator"></span> Lutut (Knees)
+                        </div>
+                        <div class="calibration-item" id="calib-ankles">
+                            <span class="indicator"></span> Kaki (Ankles)
+                        </div>
+                    </div>
+                    
+                    <!-- Webcam fallback/placeholder overlay -->
+                    <div class="video-overlay" id="video-placeholder">
+                        <div class="overlay-content">
+                            <i class="fa-solid fa-video-slash placeholder-icon"></i>
+                            <h3>Kamera Belum Aktif</h3>
+                            <p>Izinkan akses kamera dan tekan tombol "Mulai Latihan" di bawah untuk mendeteksi gerakan secara real-time.</p>
+                            <button class="btn btn-primary" id="btn-start-camera">
+                                <i class="fa-solid fa-play"></i> Mulai Akses Kamera
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading spinner during calibration -->
+                    <div class="loading-overlay" id="loading-spinner" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Menginisialisasi AI MediaPipe...</p>
+                    </div>
+                </div>
+                
+                <!-- Video Controls -->
+                <div class="video-controls">
+                    <button class="btn btn-secondary" id="btn-toggle-skeleton" title="Sembunyikan/Tampilkan Rangka Tubuh">
+                        <i class="fa-solid fa-bone"></i> <span>Tampilkan Skeleton</span>
+                    </button>
+                    <button class="btn btn-danger" id="btn-stop-camera" style="display: none;">
+                        <i class="fa-solid fa-square"></i> Hentikan Kamera
+                    </button>
+                </div>
+            </section>
+            
+            <!-- Right Panel: Analytics & Statistics -->
+            <section class="analytics-section">
+                <!-- Mode Latihan Card -->
+                <div class="card mode-card glow-card">
+                    <h2>Pilih Menu Latihan</h2>
+                    <div class="exercise-selector">
+                        <button class="btn-mode active" data-mode="Auto" title="Deteksi otomatis menggunakan AI">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Auto AI</span>
+                        </button>
+                        <button class="btn-mode" data-mode="Squats" title="Fokus latihan Squats">
+                            <i class="fa-solid fa-person-praying"></i>
+                            <span>Squats</span>
+                        </button>
+                        <button class="btn-mode" data-mode="Push Ups" title="Fokus latihan Push Ups">
+                            <i class="fa-solid fa-person-running"></i>
+                            <span>Push Ups</span>
+                        </button>
+                        <button class="btn-mode" data-mode="Russian twists" title="Fokus latihan Russian twists">
+                            <i class="fa-solid fa-arrows-spin"></i>
+                            <span>Twists</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Panduan Posisi Kamera -->
+                    <div class="guide-banner searching" id="camera-guide">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span id="guide-text">Harap nyalakan kamera dan posisikan tubuh Anda agar sepenuhnya terdeteksi oleh AI.</span>
+                    </div>
+                </div>
+
+                <!-- Audio Feedback Card -->
+                <div class="card audio-card glow-card">
+                    <h2>Pilih Umpan Balik Suara</h2>
+                    <div class="audio-controls-grid">
+                        <div class="audio-switch-item">
+                            <span class="audio-label">
+                                <i class="fa-solid fa-volume-high"></i> Efek Suara (SFX)
+                            </span>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-sfx" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="audio-switch-item">
+                            <span class="audio-label">
+                                <i class="fa-solid fa-comment-dots"></i> Asisten Suara AI (TTS)
+                            </span>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-voice" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prediction Card -->
+                <div class="card prediction-card glow-card">
+                    <h2>Hasil Deteksi Gerakan</h2>
+                    <div class="prediction-display">
+                        <div class="prediction-main">
+                            <span id="predicted-label" class="label-placeholder">SIAP MEDETEKSI</span>
+                            <div class="confidence-ring-container">
+                                <svg class="confidence-ring" width="80" height="80">
+                                    <circle class="ring-bg" cx="40" cy="40" r="34" />
+                                    <circle class="ring-bar" id="confidence-bar" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6" />
+                                </svg>
+                                <span id="confidence-text">0%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="prediction-confidence-bar"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Smart Rep Counter & Statistics -->
+                <div class="stats-grid">
+                    <div class="card stat-card rep-card">
+                        <div class="stat-header">
+                            <h3>Jumlah Repetisi</h3>
+                            <i class="fa-solid fa-dumbbell stat-icon"></i>
+                        </div>
+                        <div class="stat-value" id="rep-counter">0</div>
+                        <div class="stat-desc">Satu gerakan penuh terhitung otomatis.</div>
+                        <button class="btn btn-sm btn-outline" id="btn-reset-reps">
+                            <i class="fa-solid fa-arrows-rotate"></i> Reset
+                        </button>
+                    </div>
+                    
+                    <div class="card stat-card details-card">
+                        <div class="stat-header">
+                            <h3>Info Gerakan</h3>
+                            <i class="fa-solid fa-circle-info stat-icon"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-row">
+                                <span class="info-label">Sisi Terdeteksi:</span>
+                                <span class="info-val highlight" id="active-side">LEFT</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Status Gerakan:</span>
+                                <span class="info-val" id="rep-state">Idle</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Form/Kualitas:</span>
+                                <span class="info-val highlight-green" id="form-quality">Sempurna</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Postur Punggung:</span>
+                                <span class="info-val" id="spine-status">—</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Akurasi Model:</span>
+                                <span class="info-val highlight-green">97.76% (RF)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real-Time Form Correction Feedback -->
+                <div class="card angles-card">
+                    <h2>Koreksi Postur (Real-Time)</h2>
+                    <div class="form-feedback-list" id="form-feedback-list">
+                        <div class="feedback-item empty">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            <span>Menunggu gerakan...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>FitAI Pro &copy; 2026 - Dikembangkan menggunakan MediaPipe Pose & Scikit-Learn RandomForestClassifier</p>
+        </footer>
+    </div>
+    <!-- Persistent Audio Element for TTS Autoplay Bypass -->
+    <audio id="tts-audio" style="display: none;"></audio>
+    
+    <!-- Application Scripts -->
+    <script src="/static/model_predict.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>

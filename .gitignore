@@ -1,0 +1,10 @@
+node_modules/
+dist/
+__pycache__/
+*.apk
+*.idsig
+*.keystore
+*.zip
+*.log
+src-tauri/target/
+src-tauri/gen/

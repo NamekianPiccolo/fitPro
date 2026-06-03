@@ -1,0 +1,25 @@
+{
+  "name": "fitai-pro",
+  "version": "1.0.0",
+  "description": "FitAI Pro - Real-Time AI Exercise Tracker",
+  "scripts": {
+    "tauri": "tauri",
+    "tauri:dev": "python build_dist.py && tauri dev",
+    "tauri:build": "python build_dist.py && tauri build",
+    "tauri:android": "python build_dist.py && tauri android build",
+    "flask": "python app.py",
+    "build-dist": "python build_dist.py"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/outfit": "^5.2.8",
+    "@fortawesome/fontawesome-free": "^7.2.0",
+    "@mediapipe/camera_utils": "^0.3.1675466862",
+    "@mediapipe/pose": "^0.5.1675469404",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-shell": "^2.3.5"
+  }
+}
