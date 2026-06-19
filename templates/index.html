@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitAI Pro - Real-Time AI Exercise Tracker</title>
+    <title>fitVision - Real-Time AI Exercise Tracker</title>
     
     <!-- Local Fonts: Outfit & Inter -->
     <link rel="stylesheet" href="/static/vendor/fonts/outfit/index.css">
@@ -15,9 +15,9 @@
     <!-- Custom Premium Stylesheet -->
     <link rel="stylesheet" href="/static/style.css?v=3">
     
-    <!-- Local MediaPipe Dependencies -->
-    <script src="/static/vendor/mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="/static/vendor/mediapipe/pose/pose.js"></script>
+    <!-- Online MediaPipe Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="app-container">
@@ -29,7 +29,7 @@
         <header class="app-header">
             <div class="logo">
                 <i class="fa-solid fa-heart-pulse logo-icon"></i>
-                <h1>Fit<span>AI</span> Pro</h1>
+                <h1>fit<span>Vision</span></h1>
             </div>
             <div class="system-status">
                 <div class="status-badge" id="backend-status">
@@ -66,7 +66,7 @@
                         <div class="hud-box hud-feedback-box">
                             <div class="hud-feedback-header">
                                 <i class="fa-solid fa-dumbbell"></i>
-                                <span id="hud-predicted-label">Auto AI</span>
+                                <span id="hud-predicted-label">SQUATS</span>
                             </div>
                             <div class="hud-feedback-body">
                                 <div class="hud-feedback-text" id="hud-form-feedback">SIAP MENDETEKSI</div>
@@ -128,9 +128,9 @@
                 <div class="card mode-card glow-card">
                     <h2>Pilih Menu Latihan</h2>
                     <div class="exercise-selector">
-                        <button class="btn-mode active" data-mode="Auto" title="Deteksi otomatis menggunakan AI">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            <span>Auto AI</span>
+                        <button class="btn-mode active" data-mode="Auto" title="Deteksi AI Otomatis (Push Up & Squat)">
+                            <i class="fa-solid fa-robot"></i>
+                            <span>Auto Detect</span>
                         </button>
                         <button class="btn-mode" data-mode="Squats" title="Fokus latihan Squats">
                             <i class="fa-solid fa-person-praying"></i>
@@ -140,10 +140,7 @@
                             <i class="fa-solid fa-person-running"></i>
                             <span>Push Ups</span>
                         </button>
-                        <button class="btn-mode" data-mode="Russian twists" title="Fokus latihan Russian twists">
-                            <i class="fa-solid fa-arrows-spin"></i>
-                            <span>Twists</span>
-                        </button>
+                        
                     </div>
                     
                     <!-- Panduan Posisi Kamera -->
@@ -257,7 +254,7 @@
         
         <!-- Footer -->
         <footer class="app-footer">
-            <p>FitAI Pro &copy; 2026 - Dikembangkan menggunakan MediaPipe Pose & Scikit-Learn RandomForestClassifier</p>
+            <p>fitVision &copy; 2026 - Dikembangkan menggunakan MediaPipe Pose & Scikit-Learn RandomForestClassifier</p>
         </footer>
     </div>
     <!-- Persistent Audio Element for TTS Autoplay Bypass -->

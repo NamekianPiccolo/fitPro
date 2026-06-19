@@ -1,12 +1,12 @@
 {
-  "name": "fitai-pro",
+  "name": "fitvision",
   "version": "1.0.0",
-  "description": "FitAI Pro - Real-Time AI Exercise Tracker",
+  "description": "fitVision - Real-Time AI Exercise Tracker",
   "scripts": {
     "tauri": "tauri",
     "tauri:dev": "python build_dist.py && tauri dev",
     "tauri:build": "python build_dist.py && tauri build",
-    "tauri:android": "python build_dist.py && tauri android build",
+    "tauri:android": "python build_dist.py && tauri android build --target aarch64",
     "flask": "python app.py",
     "build-dist": "python build_dist.py"
   },
