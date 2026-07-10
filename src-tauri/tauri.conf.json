@@ -5,7 +5,7 @@
   "identifier": "com.fitai.pro",
   "build": {
     "frontendDist": "../dist",
-    "beforeBuildCommand": "python build_dist.py"
+    "beforeBuildCommand": "python scripts/build_dist.py"
   },
   "app": {
     "windows": [

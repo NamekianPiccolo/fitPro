@@ -28,9 +28,8 @@ pip-log.txt
 pip-delete-this-directory.txt
 .venv
 .env
-best_model.pkl
-scaler.pkl
-label_encoder.pkl
+# Python ML Models
+ml/models/*.pkl
 
 # IDEs & System files
 .vscode/

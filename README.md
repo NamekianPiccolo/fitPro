@@ -2,6 +2,12 @@
 
 fitVision (atau fitAI Pro) adalah aplikasi pelacak gerakan olahraga secara real-time yang didukung oleh Kecerdasan Buatan (AI) berbasis penanda tubuh (Pose Landmarks). Aplikasi ini dirancang agar dapat berjalan secara **offline-first** di perangkat Android, menggunakan **MediaPipe Pose** untuk ekstraksi landmark tubuh dan model **Random Forest Classifier** yang diekspor langsung ke JavaScript agar dapat berjalan dengan cepat dan tanpa koneksi internet di WebView.
 
+### 📱 Tampilan Aplikasi
+<p align="center">
+  <img src="assets/tampilan_1.jpg" width="45%" alt="Tampilan Aplikasi 1" />
+  <img src="assets/tampilan_2.jpg" width="45%" alt="Tampilan Aplikasi 2" />
+</p>
+
 ---
 
 ## 📁 Struktur Folder Utama
@@ -10,8 +16,17 @@ fitVision (atau fitAI Pro) adalah aplikasi pelacak gerakan olahraga secara real-
 *   `templates/` - Berisi file UI utama (`index.html`) sebelum diproses untuk build Tauri.
 *   `static/` - Berisi aset statis (CSS, Javascript, dan MediaPipe vendor files).
     *   `model_predict.js` - Model klasifikasi Random Forest yang dikonversi dari Python ke JavaScript murni agar dapat berjalan offline di Android.
-*   `dist/` - Folder target hasil kompilasi frontend statis sebelum dikemas ke dalam APK oleh Tauri (dibuat otomatis oleh `build_dist.py`).
-*   `build_dist.py` - Script Python untuk menyalin aset frontend dari `templates/` & `static/` ke folder `dist/` serta menyesuaikan path agar relatif.
+*   `dist/` - Folder target hasil kompilasi frontend statis sebelum dikemas ke dalam APK oleh Tauri (dibuat otomatis oleh `scripts/build_dist.py`).
+*   `scripts/` - Script Python untuk development, build, dan utility.
+    *   `build_dist.py` - Script untuk menyalin aset frontend ke folder `dist/` serta menyesuaikan path agar relatif.
+    *   `setup_offline.py` - Script untuk menyalin assets/dependencies offline dari `node_modules/` ke `static/vendor/`. Dijalankan otomatis setelah `npm install`.
+    *   `export_js.py` - Script untuk mengkonversi model pickle ke JavaScript.
+    *   `split_js.py` - Script pembantu untuk membagi file script frontend.
+    *   `archive/` - Folder arsip untuk file script deprecated/one-off patch.
+*   `ml/` - Folder pipeline Machine Learning.
+    *   `train_model.py` - Script training model ML menggunakan dataset.
+    *   `exercise_angles.csv` - Dataset sudut gerakan olahraga.
+    *   `models/` - Folder penyimpanan file model pickle hasil training (`best_model.pkl`, `scaler.pkl`, `label_encoder.pkl`).
 *   `release.keystore` - Kunci keystore yang digunakan untuk menandatangani (signing) paket APK Android agar siap rilis.
 
 ---
@@ -30,8 +45,8 @@ Untuk menjalankan dan membuild aplikasi ini, pastikan sistem Anda memiliki tools
 
 ## 🚀 Cara Menjalankan & Membuild Aplikasi
 
-### 1. Instalasi Node Dependencies
-Jalankan perintah berikut di root folder untuk menginstall Tauri CLI dan package pendukung:
+### 1. Instalasi Node Dependencies & Offline Setup
+Jalankan perintah berikut di root folder untuk menginstall Tauri CLI dan package pendukung. Script `setup_offline.py` akan otomatis terpanggil setelah install selesai untuk menyiapkan asset vendor:
 ```bash
 npm install
 ```
@@ -40,7 +55,7 @@ npm install
 Sebelum Tauri melakukan build, Anda harus memaketkan file HTML, CSS, dan JS ke folder `dist/` menggunakan script Python pembantu:
 ```bash
 npm run build-dist
-# atau jalankan manual: python build_dist.py
+# atau jalankan manual: python scripts/build_dist.py
 ```
 
 ### 3. Menjalankan Aplikasi dalam Mode Development (Android Emulator / Device)
@@ -64,15 +79,15 @@ Jika Anda ingin menjalankan server Flask lokal untuk development web tradisional
 
 ### 1. Install Library Python yang Dibutuhkan
 ```bash
-pip install flask scikit-learn pandas joblib
+pip install flask scikit-learn pandas joblib m2cgen
 ```
 
 ### 2. Melatih Ulang Model (Training)
-Jika Anda memperbarui dataset `exercise_angles.csv`, Anda bisa menjalankan script training berikut:
+Jika Anda memperbarui dataset `ml/exercise_angles.csv`, Anda bisa menjalankan script training berikut:
 ```bash
-python train_model.py
+python ml/train_model.py
 ```
-Script ini akan menghasilkan file model baru: `best_model.pkl`, `scaler.pkl`, dan `label_encoder.pkl`.
+Script ini akan menghasilkan file model baru di folder `ml/models/`: `best_model.pkl`, `scaler.pkl`, dan `label_encoder.pkl`.
 
 ### 3. Menjalankan Server Flask Lokal
 ```bash
@@ -84,9 +99,9 @@ Aplikasi web Flask akan berjalan di `http://127.0.0.1:5000`.
 ### 4. Mengekspor Model ke JavaScript Offline
 Jika Anda melatih model baru dan ingin memasukkannya kembali ke aplikasi offline Android:
 ```bash
-python export_js.py
+python scripts/export_js.py
 ```
-Script ini akan memperbarui file `static/model_predict.js` berdasarkan file pickle (`best_model.pkl` & `scaler.pkl`) yang baru dilatih.
+Script ini akan memperbarui file `static/model_predict.js` berdasarkan file pickle di folder `ml/models/` yang baru dilatih.
 
 ---
 

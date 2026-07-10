@@ -4,11 +4,12 @@
   "description": "fitVision - Real-Time AI Exercise Tracker",
   "scripts": {
     "tauri": "tauri",
-    "tauri:dev": "python build_dist.py && tauri dev",
-    "tauri:build": "python build_dist.py && tauri build",
-    "tauri:android": "python build_dist.py && tauri android build --target aarch64",
+    "tauri:dev": "python scripts/build_dist.py && tauri dev",
+    "tauri:build": "python scripts/build_dist.py && tauri build",
+    "tauri:android": "python scripts/build_dist.py && tauri android build --target aarch64",
     "flask": "python app.py",
-    "build-dist": "python build_dist.py"
+    "build-dist": "python scripts/build_dist.py",
+    "postinstall": "python scripts/setup_offline.py"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2"

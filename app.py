@@ -6,12 +6,13 @@ from flask import Flask, request, jsonify, render_template
 app = Flask(__name__)
 
 # Load models and preprocessing artifacts
-model_path = 'best_model.pkl'
-scaler_path = 'scaler.pkl'
-label_encoder_path = 'label_encoder.pkl'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(BASE_DIR, 'ml', 'models', 'best_model.pkl')
+scaler_path = os.path.join(BASE_DIR, 'ml', 'models', 'scaler.pkl')
+label_encoder_path = os.path.join(BASE_DIR, 'ml', 'models', 'label_encoder.pkl')
 
 if not os.path.exists(model_path) or not os.path.exists(scaler_path) or not os.path.exists(label_encoder_path):
-    raise FileNotFoundError("Model artifacts not found! Please run train_model.py first.")
+    raise FileNotFoundError(f"Model artifacts not found! Please run python ml/train_model.py first. (Paths checked: {model_path}, {scaler_path}, {label_encoder_path})")
 
 model = joblib.load(model_path)
 scaler = joblib.load(scaler_path)
